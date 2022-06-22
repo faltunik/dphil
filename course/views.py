@@ -1,8 +1,10 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
-
-from .serializer import CourseSerializer
+from .models import Course
+from .serializer import CourseSerializer,  StudentListSerializer
 
 # Create your views here.
 
@@ -25,13 +27,24 @@ class CourseAPI(viewsets.ModelViewSet):
 
 
 
-# API to update a course (Enroll on Course)
+# API Enroll on Course
+
+class Enrollment(APIView):
+    def get(self, request):
+        obj = get_object_or_404(Course, id = request.GET.get('getid', 1) )
+        obj.students.add(request.user)
+        return Response({"Enrolled": "You Are Enrolled"}, status=status.HTTP_202_ACCEPTED )
 
 
 
 
+# API to get list of all students
+class StudentList(APIView):
+    def get(self, request):
+        obj = get_object_or_404(Course, id = request.GET.get('getid', 1) )
+        serializer = StudentListSerializer(obj)
+        return Response(serializer.data, status=status.HTTP_200_OK )
 
-# API to get students list  of course(same as ppl who like the post)
 
 
 
